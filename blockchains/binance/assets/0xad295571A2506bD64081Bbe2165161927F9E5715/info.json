@@ -1,0 +1,10 @@
+cat > info.json << 'EOF'
+{
+  "name": "Tether USD Bridged",
+  "symbol": "USDT",
+  "type": "BEP20",
+  "decimals": 18,
+  "website": "https://yourdomain.com",
+  "description": "Tether USD Bridged (USDT) on BSC."
+}
+EOF
