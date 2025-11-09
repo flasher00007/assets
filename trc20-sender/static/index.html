@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRC20 USDT Sender</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: monospace;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        .fee-info {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 12px 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .fee-info strong {
+            color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+            word-break: break-all;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .result strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .tx-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .tx-link:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        .warning strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 TRC20 USDT Sender</h1>
+        <p class="subtitle">Send USDT on TRON Network</p>
+
+        <div class="warning">
+            <strong>⚠️ Security Warning</strong>
+            Never share your private key with anyone. This application processes transactions locally.
+        </div>
+
+        <form id="transferForm">
+            <div class="form-group">
+                <label for="privateKey">Private Key</label>
+                <input 
+                    type="password" 
+                    id="privateKey" 
+                    placeholder="Enter your private key (without 0x prefix)"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="toAddress">Recipient Address</label>
+                <input 
+                    type="text" 
+                    id="toAddress" 
+                    placeholder="T..."
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount (USDT)</label>
+                <input 
+                    type="number" 
+                    id="amount" 
+                    placeholder="0.00"
+                    step="0.000001"
+                    min="0"
+                    required
+                >
+            </div>
+
+            <div class="fee-info">
+                <strong>Transaction Fee:</strong> 1 TRX (automatically included)
+            </div>
+
+            <button type="submit" id="sendBtn">Send USDT</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Processing transaction...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('transferForm');
+        const sendBtn = document.getElementById('sendBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const privateKey = document.getElementById('privateKey').value.trim();
+            const toAddress = document.getElementById('toAddress').value.trim();
+            const amount = document.getElementById('amount').value.trim();
+
+            // Validate inputs
+            if (!privateKey || !toAddress || !amount) {
+                showResult('error', 'Please fill in all fields');
+                return;
+            }
+
+            if (!toAddress.startsWith('T')) {
+                showResult('error', 'Invalid TRON address. Address must start with T');
+                return;
+            }
+
+            if (parseFloat(amount) <= 0) {
+                showResult('error', 'Amount must be greater than 0');
+                return;
+            }
+
+            // Show loading
+            sendBtn.disabled = true;
+            loading.classList.add('active');
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/transfer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        privateKey: privateKey,
+                        toAddress: toAddress,
+                        amount: amount
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', `
+                        <strong>✅ Transaction Successful!</strong>
+                        <div style="margin-top: 10px;">
+                            <strong>Transaction ID:</strong><br>
+                            <a href="https://tronscan.org/#/transaction/${data.txId}" 
+                               target="_blank" 
+                               class="tx-link">${data.txId}</a>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                            Click the transaction ID to view on TronScan
+                        </div>
+                    `);
+                    form.reset();
+                } else {
+                    showResult('error', `<strong>❌ Transaction Failed</strong><br>${data.error}`);
+                }
+            } catch (error) {
+                showResult('error', `<strong>❌ Error</strong><br>${error.message}`);
+            } finally {
+                sendBtn.disabled = false;
+                loading.classList.remove('active');
+            }
+        });
+
+        function showResult(type, message) {
+            result.className = `result ${type}`;
+            result.innerHTML = message;
+            result.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
